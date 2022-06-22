@@ -1,0 +1,1 @@
+This repository contains the test task for Kysect
