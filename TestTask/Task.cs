@@ -14,7 +14,7 @@ namespace TestTask
             _subtasks = subtasks;
         }
         public Task(TaskHeader taskHeader) : this(taskHeader, new Dictionary<string, SubTask>()) { }
-        public Task(Dictionary<string, SubTask> subtasks) : this(new TaskHeader(), subtasks) { }
+        public Task(Dictionary<string, SubTask> subtasks) : this(new TaskHeader(Guid.NewGuid().ToString()), subtasks) { }
 
         public SubTask GetSubTask(string subTaskId)
         {

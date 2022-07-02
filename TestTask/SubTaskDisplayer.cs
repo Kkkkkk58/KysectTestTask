@@ -28,9 +28,11 @@ namespace TestTask
                 sb.Append("[ ] ");
             }
         }
-        private static void PutId(SubTask subTask, ref StringBuilder sb) => sb.Append($"{{{subTask.Id}}} ");
+        private static void PutId(SubTask subTask, ref StringBuilder sb)
+            => sb.Append($"{{{subTask.Id}}} ");
 
-        private static void PutDescription(SubTask subTask, ref StringBuilder sb) => sb.Append($"{subTask.Description}\n");
+        private static void PutDescription(SubTask subTask, ref StringBuilder sb)
+            => sb.Append($"{subTask.Description}\n");
 
     }
 

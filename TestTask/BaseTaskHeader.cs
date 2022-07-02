@@ -5,13 +5,12 @@
     {
         public string Id { get; }
         public string Description { get; set; }
-        public bool IsCompleted { get; set; }
+        public bool IsCompleted { get; set; } = false;
 
-        public BaseTaskHeader(string id, string description, bool isCompleted)
+        public BaseTaskHeader(string id, string description)
         {
             Id = id;
             Description = description;
-            IsCompleted = isCompleted;
         }
     }
 }
