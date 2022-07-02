@@ -8,7 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace TestTask
 {
-    internal static class TaskHubJsonSerializer
+    internal static class TaskHubBinSerializer
     {
         public static void Save(TaskHub instance, string filename)
         {

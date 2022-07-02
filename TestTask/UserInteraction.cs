@@ -192,13 +192,13 @@ namespace TestTask
         private void OnLoading(string[] commandArgs)
         {
             string filename = commandArgs[1];
-            TaskHubJsonSerializer.Load(ref _taskHub, filename);
+            TaskHubBinSerializer.Load(ref _taskHub, filename);
         }
 
         private void OnSaving(string[] commandArgs)
         {
             string filename = commandArgs[1];
-            TaskHubJsonSerializer.Save(_taskHub, filename);
+            TaskHubBinSerializer.Save(_taskHub, filename);
         }
         private void OnHelp()
         {
