@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TestTask
 {
+    [Serializable]
     internal class BaseTask
     {
         private readonly BaseTaskHeader _taskHeader;

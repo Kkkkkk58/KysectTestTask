@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Text.Json;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace TestTask
 {
     internal static class TaskHubJsonSerializer
     {
-        public static async void Save(TaskHub instance, string filename)
+        public static void Save(TaskHub instance, string filename)
         {
-            using FileStream createStream = File.Create(filename);
-            await JsonSerializer.SerializeAsync(createStream, instance);
-            await createStream.DisposeAsync();
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None);
+            formatter.Serialize(stream, instance);
+            stream.Close();
         }
 
         public static void Load(ref TaskHub instance, string filename)
         {
-            string parsedJson = File.ReadAllText(filename);
-            instance = JsonSerializer.Deserialize<TaskHub>(parsedJson);
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+            instance = (TaskHub)formatter.Deserialize(stream);
+            stream.Close();
         }
     }
 }
