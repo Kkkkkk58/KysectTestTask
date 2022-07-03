@@ -8,10 +8,11 @@ namespace TestTask
         {
             Console.WriteLine(GetDisplayMessage(groupOfTasks));
             DisplayTasks(groupOfTasks);
+            Console.WriteLine("===============================");
         }
         private static string GetDisplayMessage(GroupOfTasks groupOfTasks)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             PutId(groupOfTasks, ref sb);
             PutName(groupOfTasks, ref sb);
             return sb.ToString();
@@ -28,7 +29,7 @@ namespace TestTask
             => sb.Append($"Group {{{groupOfTasks.Id}}} ");
 
         private static void PutName(GroupOfTasks groupOfTasks, ref StringBuilder sb) 
-            => sb.Append($"{groupOfTasks.Name}\n");
+            => sb.Append($"{groupOfTasks.Name}");
 
     }
 }

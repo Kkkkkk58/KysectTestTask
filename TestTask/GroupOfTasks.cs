@@ -1,28 +1,14 @@
-﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace TestTask
 {
     [Serializable]
-    internal class GroupOfTasks : IEnumerable<Task>, IDictionary<string, Task>
+    internal class GroupOfTasks
     {
-        private Dictionary<string, Task> _tasks;
+        private readonly Dictionary<string, Task> _tasks;
         public string Id { get; }
         public string Name { get; set; }
 
-        public ICollection<string> Keys => ((IDictionary<string, Task>)_tasks).Keys;
-
-        public ICollection<Task> Values => ((IDictionary<string, Task>)_tasks).Values;
-
-        public int Count => ((ICollection<KeyValuePair<string, Task>>)_tasks).Count;
-
-        public bool IsReadOnly => ((ICollection<KeyValuePair<string, Task>>)_tasks).IsReadOnly;
-
-        public Task this[string key]
-        {
-            get => ((IDictionary<string, Task>)_tasks)[key];
-            set => ((IDictionary<string, Task>)_tasks)[key] = value;
-        }
 
         public GroupOfTasks(Dictionary<string, Task> tasks, string id, string name)
         {
@@ -31,80 +17,43 @@ namespace TestTask
             Name = name;
         }
 
-        public GroupOfTasks(Dictionary<string, Task> tasks, string name = "N/D")
-            : this(tasks, Guid.NewGuid().ToString(), name) { }
-
         public GroupOfTasks(string name = "N/D")
             : this(new Dictionary<string, Task>(), Guid.NewGuid().ToString(), name) { }
 
-        public IEnumerator<Task> GetEnumerator()
+        public Task this[string key]
         {
-            return _tasks.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_tasks.Values).GetEnumerator();
-        }
-
-        public void Add(string id, Task task)
-        {
-            ((IDictionary<string, Task>)_tasks).Add(id, task);
-        }
-
-        public void Add(Task task)
-        {
-            Add(task.Id, task);
-        }
-
-        public bool ContainsKey(string id)
-        {
-            return ((IDictionary<string, Task>)_tasks).ContainsKey(id);
-        }
-
-        public bool Remove(string id)
-        {
-            return ((IDictionary<string, Task>)_tasks).Remove(id);
+            get => _tasks[key];
+            set => _tasks[key] = value;
         }
 
         public bool TryGetValue(string id, [MaybeNullWhen(false)] out Task task)
         {
-            return ((IDictionary<string, Task>)_tasks).TryGetValue(id, out task);
+            return _tasks.TryGetValue(id, out task);
         }
 
-        public void Add(KeyValuePair<string, Task> item)
+        public void Add(Task task)
         {
-            ((ICollection<KeyValuePair<string, Task>>)_tasks).Add(item);
+            _tasks.Add(task.Id, task);
         }
 
-        public void Clear()
+        public bool TryAdd(Task task)
         {
-            ((ICollection<KeyValuePair<string, Task>>)_tasks).Clear();
+            return _tasks.TryAdd(task.Id, task);
         }
 
-        public bool Contains(KeyValuePair<string, Task> item)
+        public bool Remove(string id)
         {
-            return ((ICollection<KeyValuePair<string, Task>>)_tasks).Contains(item);
+            return _tasks.Remove(id);
         }
 
-        public void CopyTo(KeyValuePair<string, Task>[] array, int arrayIndex)
+        public bool Contains(string id)
         {
-            ((ICollection<KeyValuePair<string, Task>>)_tasks).CopyTo(array, arrayIndex);
+            return _tasks.ContainsKey(id);
         }
 
-        public bool Remove(KeyValuePair<string, Task> item)
+        public IEnumerator<Task> GetEnumerator()
         {
-            return ((ICollection<KeyValuePair<string, Task>>)_tasks).Remove(item);
-        }
-
-        IEnumerator<KeyValuePair<string, Task>> IEnumerable<KeyValuePair<string, Task>>.GetEnumerator()
-        {
-            return ((IEnumerable<KeyValuePair<string, Task>>)_tasks).GetEnumerator();
-        }
-
-        public static explicit operator GroupOfTasks(Dictionary<string, GroupOfTasks>.ValueCollection v)
-        {
-            throw new NotImplementedException();
+            return _tasks.Values.GetEnumerator();
         }
     }
 }

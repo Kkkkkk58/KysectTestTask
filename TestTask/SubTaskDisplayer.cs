@@ -7,11 +7,11 @@ namespace TestTask
     {
         public static void Display(SubTask subTask)
         {
-            Console.Write(GetDisplayMessage(subTask));
+            Console.WriteLine(GetDisplayMessage(subTask));
         }
         private static string GetDisplayMessage(SubTask subTask)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             MarkCompletion(subTask, ref sb);
             PutId(subTask, ref sb);
             PutDescription(subTask, ref sb);
@@ -28,11 +28,12 @@ namespace TestTask
                 sb.Append("[ ] ");
             }
         }
+
         private static void PutId(SubTask subTask, ref StringBuilder sb)
             => sb.Append($"{{{subTask.Id}}} ");
 
         private static void PutDescription(SubTask subTask, ref StringBuilder sb)
-            => sb.Append($"{subTask.Description}\n");
+            => sb.Append($"{subTask.Description}");
 
     }
 

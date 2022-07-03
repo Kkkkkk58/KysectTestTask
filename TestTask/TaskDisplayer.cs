@@ -11,7 +11,7 @@ namespace TestTask
         }
         private static string GetDisplayMessage(Task task)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             MarkCompletion(task, ref sb);
             PutDeadlineIfAny(task, ref sb);
             PutId(task, ref sb);
@@ -48,7 +48,7 @@ namespace TestTask
         }
         private static void PutId(Task task, ref StringBuilder sb) => sb.Append($"{{{task.Id}}} ");
 
-        private static void PutDescription(Task task, ref StringBuilder sb) => sb.Append($"{task.Description}\n");
+        private static void PutDescription(Task task, ref StringBuilder sb) => sb.Append($"{task.Description}");
 
     }
 }

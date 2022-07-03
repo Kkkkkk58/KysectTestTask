@@ -8,27 +8,12 @@ namespace TestTask
     {
         private static TaskHub? _instance;
 
-        private static object _lock = new();
+        private static readonly object _lock = new();
 
-        public const string UngrouppedName = "UngrouppedIdLJGS";
-        private GroupOfTasks _ungrouppedTasks = new(name: UngrouppedName);
+        private readonly GroupOfTasks _allTasks = new(name: "UngrouppedIdLJGS");
 
-        private Dictionary<string, GroupOfTasks> _grouppedTasks = new();
+        private readonly Dictionary<string, GroupOfTasks> _grouppedTasks = new();
 
-        //public static TaskHub GetInstance(GroupOfTasks ungrouppedTasks, Dictionary<string, GroupOfTasks> grouppedTasks)
-        //{
-        //    if (_instance is null)
-        //    {
-        //        lock (_lock)
-        //        {
-        //            if (_instance is null)
-        //            {
-        //                _instance = new TaskHub(ungrouppedTasks, grouppedTasks);
-        //            }
-        //        }
-        //    }
-        //    return _instance;
-        //}
 
         public static TaskHub GetInstance()
         {
@@ -45,90 +30,96 @@ namespace TestTask
             return _instance;
         }
 
-        //private TaskHub(GroupOfTasks ungrouppedTasks, Dictionary<string, GroupOfTasks> grouppedTasks)
-        //{
-        //    _ungrouppedTasks = ungrouppedTasks;
-        //    _grouppedTasks = grouppedTasks;
-        //}
 
         private TaskHub() { }
 
         public void AddTask(Task task)
         {
-            if (!_ungrouppedTasks.TryAdd(task.Id, task))
+            if (!_allTasks.TryAdd(task))
             {
-                throw new Exception("TODO");
+                throw new TaskIdException(TaskIdException.AlreadyExists(task.Id));
             }
         }
 
         public void RemoveTask(string id)
         {
-            _ungrouppedTasks.Remove(id);
-        }
-
-        public void RemoveTask(Task task)
-        {
-            _ungrouppedTasks.Remove(task.Id);
+            if (_allTasks.Contains(id))
+            {
+                _allTasks.Remove(id);
+                foreach (var groupOfTasks in (IEnumerable<GroupOfTasks>)this)
+                {
+                    if (groupOfTasks.Contains(id))
+                    {
+                        groupOfTasks.Remove(id);
+                    }
+                }
+            }
+            else
+            {
+                throw new TaskIdException(TaskIdException.NoSuchId(id));
+            }
         }
 
         public Task GetTask(string id)
         {
-            if (_ungrouppedTasks.TryGetValue(id, out var task))
+            if (_allTasks.TryGetValue(id, out var task))
             {
                 return task;
             }
-            foreach(var groupOfTasks in _grouppedTasks.Values)
-            {
-                if (groupOfTasks.TryGetValue(id, out task))
-                {
-                    return task;
-                }
-            }
-            throw new Exception("TODO");
+            throw new TaskIdException(TaskIdException.NoSuchId(id));
         }
 
         public void AddGroupOfTasks(GroupOfTasks groupOfTasks)
         {
             if (!_grouppedTasks.TryAdd(groupOfTasks.Id, groupOfTasks))
             {
-                throw new Exception("TODO");
+                throw new GroupIdException(GroupIdException.AlreadyExists(groupOfTasks.Id));
             }
         }
 
-        public void AddTaskToGroup(string groupId, Task task)
-        {
-            _grouppedTasks[groupId].Add(task);
-        }
         public void AddTaskToGroup(string groupId, string taskId)
         {
             Task task = GetTask(taskId);
-            _grouppedTasks[groupId].Add(task);
+            if (!_grouppedTasks[groupId].TryAdd(task))
+            {
+                throw new TaskIdException(TaskIdException.AlreadyExists(taskId));
+            }
+            
         }
         public void RemoveGroupOfTasks(string id)
         {
-            _grouppedTasks.Remove(id);
+            if (_grouppedTasks.ContainsKey(id))
+            {
+                _grouppedTasks.Remove(id);
+            }
+            else
+            {
+                throw new GroupIdException(GroupIdException.NoSuchId(id));
+            }
         }
 
-        public void RemoveGroupOfTasks(GroupOfTasks groupOfTasks)
-        {
-            _grouppedTasks.Remove(groupOfTasks.Id);
-        }
         public void RemoveTaskFromGroup(string groupId, string taskId)
         {
-            _grouppedTasks[groupId].Remove(groupId);
+            if (_grouppedTasks.ContainsKey(groupId))
+            {
+                if (_grouppedTasks[groupId].Contains(taskId))
+                {
+                    _grouppedTasks[groupId].Remove(taskId);
+                }
+                else
+                {
+                    throw new TaskIdException(TaskIdException.NoSuchId(taskId));
+                }
+            }
+            else
+            {
+                throw new GroupIdException(GroupIdException.NoSuchId(groupId));
+            }
         }
 
-        public GroupOfTasks GetGroupOfTasks(string id)
-        {
-            if (_grouppedTasks.TryGetValue(id, out var groupOfTasks))
-            {
-                return groupOfTasks;
-            }
-            throw new Exception("TODO");
-        }
         IEnumerator<Task> IEnumerable<Task>.GetEnumerator()
         {
-            return _ungrouppedTasks.GetEnumerator();
+            return _allTasks.GetEnumerator();
         }
 
         IEnumerator<GroupOfTasks> IEnumerable<GroupOfTasks>.GetEnumerator()
@@ -138,18 +129,14 @@ namespace TestTask
         }
         IEnumerator IEnumerable.GetEnumerator()
         {
-            yield return ((IEnumerable)_ungrouppedTasks).GetEnumerator();
-            foreach (var groupOfTasks in _grouppedTasks.Values)
-            {
-                yield return ((IEnumerable)groupOfTasks).GetEnumerator();
-            }
+            yield return ((IEnumerable<Task>)_allTasks).GetEnumerator();
         }
 
         public GroupOfTasks GetCompletedTasks()
         {
             GroupOfTasks completedTasks = new(name: "Completed Tasks");
 
-            foreach(Task task in (IEnumerable)this)
+            foreach(Task task in (IEnumerable<Task>)this)
             {
                 if (task.IsCompleted)
                 {
@@ -163,7 +150,7 @@ namespace TestTask
         {
             GroupOfTasks tasksForToday = new(name: "Tasks for Today");
 
-            foreach(Task task in (IEnumerable)this)
+            foreach(Task task in (IEnumerable<Task>)this)
             {
                 if (task.Deadline is not null && ((DateTime)task.Deadline).Date == DateTime.Today)
                 {
@@ -171,12 +158,6 @@ namespace TestTask
                 }
             }
             return tasksForToday;
-        }
-
-        public void Reset(GroupOfTasks ungrouppedTasks, Dictionary<string, GroupOfTasks> grouppedTasks)
-        {
-            _ungrouppedTasks = ungrouppedTasks;
-            _grouppedTasks = grouppedTasks;
         }
     }
 }

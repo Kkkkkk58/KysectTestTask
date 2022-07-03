@@ -4,15 +4,7 @@
     {
         public static void Display(TaskHub instance)
         {
-            DisplayGroups(instance);
             DisplaySingleTasks(instance);
-        }
-        private static void DisplayGroups(TaskHub instance)
-        {
-            foreach(GroupOfTasks groupOfTasks in (IEnumerable<GroupOfTasks>)instance)
-            {
-                GroupOfTasksDisplayer.Display(groupOfTasks);
-            }
         }
 
         private static void DisplaySingleTasks(TaskHub instance)
